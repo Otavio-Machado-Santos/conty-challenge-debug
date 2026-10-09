@@ -1,0 +1,15 @@
+
+> test
+> NODE_OPTIONS='--disable-warning=ExperimentalWarning' vitest run
+
+
+ RUN  v3.2.7 /Users/flowbix_redfinger/XiaomiMiMoProjects/conty challenge/projetos/conty-challenge-debug
+
+ ✓ test/payouts.test.ts (9 tests) 17ms
+ ✓ test/incident-regressions.test.ts (21 tests) 48ms
+
+ Test Files  2 passed (2)
+      Tests  30 passed (30)
+   Start at  03:59:20
+   Duration  633ms (transform 205ms, setup 0ms, collect 579ms, tests 65ms, environment 0ms, prepare 127ms)
+

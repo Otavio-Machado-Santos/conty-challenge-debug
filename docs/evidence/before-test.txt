@@ -1,0 +1,103 @@
+
+> test
+> NODE_OPTIONS='--disable-warning=ExperimentalWarning' vitest run
+
+
+ RUN  v3.2.7 /Users/flowbix_redfinger/XiaomiMiMoProjects/conty challenge/projetos/conty-challenge-debug
+
+ ❯ test/payouts.test.ts (9 tests | 4 failed) 26ms
+   × aprovação da entrega > credita a missão aprovada às 22:02 em São Paulo no dia do prazo 12ms
+     → expected 409 to be 201 // Object.is equality
+   × aprovação da entrega > grava o valor da missão em reais 2ms
+     → expected 1.5 to be 150 // Object.is equality
+   × aprovação da entrega > não credita de novo quando a confirmação do provedor chega outra vez 3ms
+     → expected [ { …(5) }, { …(5) } ] to have a length of 1 but got 2
+   ✓ aprovação da entrega > aceita a mesma chave uma única vez 2ms
+   ✓ aprovação da entrega > recusa aprovação no dia seguinte ao prazo 1ms
+   ✓ aprovação da entrega > responde 404 para missão inexistente 0ms
+   × status do provedor > mantém o repasse pendente enquanto o provedor não confirma 1ms
+     → expected 'paid' to be 'pending' // Object.is equality
+   ✓ status do provedor > marca como pago quando o provedor confirma o recebimento 0ms
+   ✓ status do provedor > marca falha quando o provedor falha 2ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 4 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  test/payouts.test.ts > aprovação da entrega > credita a missão aprovada às 22:02 em São Paulo no dia do prazo
+AssertionError: expected 409 to be 201 // Object.is equality
+
+- Expected
++ Received
+
+- 201
++ 409
+
+ ❯ test/payouts.test.ts:35:24
+     33|       idempotency_key: "pay_9f3",
+     34|     });
+     35|     expect(res.status).toBe(201);
+       |                        ^
+     36|     const body = (await res.json()) as { ledger: { amount_brl: number …
+     37|     expect(body.ledger.amount_brl).toBe(150);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/4]⎯
+
+ FAIL  test/payouts.test.ts > aprovação da entrega > grava o valor da missão em reais
+AssertionError: expected 1.5 to be 150 // Object.is equality
+
+- Expected
++ Received
+
+- 150
++ 1.5
+
+ ❯ test/payouts.test.ts:48:36
+     46|     expect(res.status).toBe(201);
+     47|     const body = (await res.json()) as { ledger: { amount_brl: number …
+     48|     expect(body.ledger.amount_brl).toBe(150);
+       |                                    ^
+     49|   });
+     50| 
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/4]⎯
+
+ FAIL  test/payouts.test.ts > aprovação da entrega > não credita de novo quando a confirmação do provedor chega outra vez
+AssertionError: expected [ { …(5) }, { …(5) } ] to have a length of 1 but got 2
+
+- Expected
++ Received
+
+- 1
++ 2
+
+ ❯ test/payouts.test.ts:66:25
+     64|     const mission = await app.request("/missions/msn_1900");
+     65|     const body = (await mission.json()) as { ledger: unknown[] };
+     66|     expect(body.ledger).toHaveLength(1);
+       |                         ^
+     67|   });
+     68| 
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/4]⎯
+
+ FAIL  test/payouts.test.ts > status do provedor > mantém o repasse pendente enquanto o provedor não confirma
+AssertionError: expected 'paid' to be 'pending' // Object.is equality
+
+Expected: "pending"
+Received: "paid"
+
+ ❯ test/payouts.test.ts:123:25
+    121|     expect(res.status).toBe(200);
+    122|     const body = (await res.json()) as { status: string };
+    123|     expect(body.status).toBe("pending");
+       |                         ^
+    124|   });
+    125| 
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/4]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  4 failed | 5 passed (9)
+   Start at  15:55:45
+   Duration  496ms (transform 57ms, setup 0ms, collect 69ms, tests 26ms, environment 0ms, prepare 73ms)
+

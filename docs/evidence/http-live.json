@@ -1,0 +1,132 @@
+{
+  "runtime": "Node v22.23.3",
+  "environment": "local; SQLite de demonstração com dados sintéticos",
+  "verified": true,
+  "exchanges": [
+    {
+      "method": "POST",
+      "url": "http://127.0.0.1:3301/approvals",
+      "request": {
+        "mission_id": "msn_1842",
+        "approved_at": "2026-03-13T02:59:59.999Z",
+        "idempotency_key": "demo_final"
+      },
+      "status": 201,
+      "response": {
+        "mission_id": "msn_1842",
+        "status": "approved",
+        "ledger": {
+          "id": "17ab8f0c-0fc6-4e8d-bb97-9b51c0b0c263",
+          "mission_id": "msn_1842",
+          "idempotency_key": "demo_final",
+          "amount_brl": 150,
+          "created_at": "2026-10-09T19:00:01.129Z"
+        },
+        "payout": {
+          "id": "d2f2cbed-ec6e-4a99-8bcd-f5296035ee70",
+          "mission_id": "msn_1842",
+          "provider_status": null,
+          "status": "pending"
+        }
+      }
+    },
+    {
+      "method": "POST",
+      "url": "http://127.0.0.1:3301/approvals",
+      "request": {
+        "mission_id": "msn_1842",
+        "approved_at": "2026-03-13T02:59:59.999Z",
+        "idempotency_key": "demo_final​ "
+      },
+      "status": 200,
+      "response": {
+        "mission_id": "msn_1842",
+        "status": "approved",
+        "ledger": {
+          "id": "17ab8f0c-0fc6-4e8d-bb97-9b51c0b0c263",
+          "mission_id": "msn_1842",
+          "idempotency_key": "demo_final",
+          "amount_brl": 150,
+          "created_at": "2026-10-09T19:00:01.129Z"
+        },
+        "payout": {
+          "id": "d2f2cbed-ec6e-4a99-8bcd-f5296035ee70",
+          "mission_id": "msn_1842",
+          "provider_status": null,
+          "status": "pending"
+        }
+      }
+    },
+    {
+      "method": "POST",
+      "url": "http://127.0.0.1:3301/payouts/d2f2cbed-ec6e-4a99-8bcd-f5296035ee70/provider",
+      "request": {
+        "provider_status": "PENDING"
+      },
+      "status": 200,
+      "response": {
+        "id": "d2f2cbed-ec6e-4a99-8bcd-f5296035ee70",
+        "mission_id": "msn_1842",
+        "provider_status": "PENDING",
+        "status": "pending"
+      }
+    },
+    {
+      "method": "POST",
+      "url": "http://127.0.0.1:3301/payouts/d2f2cbed-ec6e-4a99-8bcd-f5296035ee70/provider",
+      "request": {
+        "provider_status": "CONFIRMED"
+      },
+      "status": 200,
+      "response": {
+        "id": "d2f2cbed-ec6e-4a99-8bcd-f5296035ee70",
+        "mission_id": "msn_1842",
+        "provider_status": "CONFIRMED",
+        "status": "paid"
+      }
+    },
+    {
+      "method": "GET",
+      "url": "http://127.0.0.1:3301/missions/msn_1842",
+      "request": null,
+      "status": 200,
+      "response": {
+        "mission": {
+          "id": "msn_1842",
+          "creator_id": "crt_ana",
+          "amount_cents": 15000,
+          "deadline_date": "2026-03-12",
+          "status": "approved"
+        },
+        "ledger": [
+          {
+            "id": "17ab8f0c-0fc6-4e8d-bb97-9b51c0b0c263",
+            "mission_id": "msn_1842",
+            "idempotency_key": "demo_final",
+            "amount_brl": 150,
+            "created_at": "2026-10-09T19:00:01.129Z"
+          }
+        ],
+        "payout": {
+          "id": "d2f2cbed-ec6e-4a99-8bcd-f5296035ee70",
+          "mission_id": "msn_1842",
+          "provider_status": "CONFIRMED",
+          "status": "paid"
+        }
+      }
+    },
+    {
+      "method": "POST",
+      "url": "http://127.0.0.1:3301/approvals",
+      "request": {
+        "mission_id": "msn_1842",
+        "approved_at": "2026-03-13T03:00:00.000Z",
+        "idempotency_key": "demo_expired"
+      },
+      "status": 409,
+      "response": {
+        "error": "prazo encerrado"
+      }
+    }
+  ]
+}
