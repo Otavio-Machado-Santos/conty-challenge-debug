@@ -5,11 +5,11 @@
 
  RUN  v3.2.7 /Users/flowbix_redfinger/XiaomiMiMoProjects/conty challenge/projetos/conty-challenge-debug
 
- ✓ test/payouts.test.ts (9 tests) 17ms
- ✓ test/incident-regressions.test.ts (21 tests) 48ms
+ ✓ test/payouts.test.ts (9 tests) 25ms
+ ✓ test/incident-regressions.test.ts (37 tests) 55ms
 
  Test Files  2 passed (2)
-      Tests  30 passed (30)
-   Start at  03:59:20
-   Duration  633ms (transform 205ms, setup 0ms, collect 579ms, tests 65ms, environment 0ms, prepare 127ms)
+      Tests  46 passed (46)
+   Start at  04:11:26
+   Duration  1.09s (transform 196ms, setup 0ms, collect 366ms, tests 80ms, environment 2ms, prepare 428ms)
 

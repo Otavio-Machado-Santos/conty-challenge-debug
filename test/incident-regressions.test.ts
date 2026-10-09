@@ -170,4 +170,35 @@ describe("regressões do incidente e invariantes do repasse", () => {
     expect((await approve("data", "msn_2044", "não é data")).status).toBe(400);
     expect((await mission()).ledger).toEqual([]);
   });
+
+  it.each([
+    "2026-02-30T12:00:00.000Z",
+    "2026-02-29T12:00:00.000Z",
+    "1900-02-29T12:00:00.000Z",
+    "2026-06-31T12:00:00.000-03:00",
+    "+010000-03-12T21:00:00.000Z",
+    "-000001-03-12T21:00:00.000Z",
+    "0000-03-12T21:00:00.000Z",
+    "9999-12-31T23:59:59.999-04:00",
+  ])("rejeita calendário inexistente ou ano civil não suportado: %s", async (approvedAt) => {
+    expect((await approve("calendario", "msn_1842", approvedAt)).status).toBe(400);
+    const result = await mission("msn_1842");
+    expect(result.mission.status).toBe("open");
+    expect(result.ledger).toEqual([]);
+    expect(result.payout).toBeNull();
+  });
+
+  it.each([
+    "2024-02-29T12:00:00.000Z",
+    "2000-02-29T12:00:00.000Z",
+    "0999-03-12T12:00:00.000Z",
+    "2026-03-12T23:59:59.999-03:00",
+    "2026-03-12T18:11:00Z",
+    "2026-03-12T18:11:00.123456+02:00",
+    "2026-03-12T18:11+0200",
+    "2026-03-12",
+  ])("preserva calendário válido e representações ISO aceitas: %s", async (approvedAt) => {
+    expect((await approve("iso-valido", "msn_1842", approvedAt)).status).toBe(201);
+    expect((await mission("msn_1842")).ledger).toHaveLength(1);
+  });
 });

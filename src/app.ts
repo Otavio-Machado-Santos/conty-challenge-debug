@@ -1,6 +1,6 @@
 import type { DatabaseSync } from "node:sqlite";
 import { Hono } from "hono";
-import { approvedCivilDay, isPastDeadline } from "./deadlines.ts";
+import { approvedCivilDay, isPastDeadline, isValidApprovedAt } from "./deadlines.ts";
 import { normalizeKey } from "./idempotency.ts";
 import { reaisFromCents } from "./money.ts";
 import { mapProviderStatus } from "./provider-status.ts";
@@ -75,7 +75,7 @@ export function createApp(db: DatabaseSync) {
     if (!missionId || !approvedAt || !key) {
       return c.json({ error: "missão, data de aprovação e chave são obrigatórias" }, 400);
     }
-    if (Number.isNaN(new Date(approvedAt).getTime())) {
+    if (!isValidApprovedAt(approvedAt)) {
       return c.json({ error: "data de aprovação inválida" }, 400);
     }
 
