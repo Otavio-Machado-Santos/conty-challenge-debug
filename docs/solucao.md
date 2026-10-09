@@ -49,4 +49,6 @@ Esta correção protege novas chamadas. Ela não reconcilia retroativamente cré
 
 ## Uso de IA e revisão
 
-Um agente Codex leu o README, o enunciado, os logs, o código e os testes; implementou a correção, criou as regressões e executou a validação local e as chamadas HTTP. A revisão independente por outros agentes está pendente nesta versão da documentação e será registrada pelo coordenador antes do envio. Revisão humana do código: ainda não realizada.
+Codex produziu código, testes e documentação. Dois agentes Codex independentes do implementador revisaram o commit `b0b8034bb393ac05dde45ad8d11f618da31ac725` e liberaram a entrega após testes e sondagens próprias. Os pareceres completos estão em `docs/reviews/`. O coordenador conferiu a instalação e os testes em checkout isolado e registrou o fluxo HTTP real. Não foi realizada revisão humana do código. A validação usa dados sintéticos e ambiente local; limites e interpretações do contrato estão documentados.
+
+[Verificação final, pareceres e gravação do fluxo](verificacao-final.md).

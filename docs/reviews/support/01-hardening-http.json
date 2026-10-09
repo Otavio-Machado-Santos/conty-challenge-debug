@@ -1,0 +1,63 @@
+{
+  "verified": true,
+  "sha": "b0b8034bb393ac05dde45ad8d11f618da31ac725",
+  "at": "2026-10-09T19:12:17.394551+00:00",
+  "environment": "local; Node22; servidor reiniciado com SQLite sintético preservado",
+  "exchanges": [
+    {
+      "method": "POST",
+      "url": "http://127.0.0.1:3301/approvals",
+      "request": {
+        "mission_id": "msn_2044",
+        "approved_at": "2026-02-30T12:00:00.000Z",
+        "idempotency_key": "hardening-invalid"
+      },
+      "status": 400,
+      "response": {
+        "error": "data de aprovação inválida"
+      }
+    },
+    {
+      "method": "POST",
+      "url": "http://127.0.0.1:3301/approvals",
+      "request": {
+        "mission_id": "msn_2044",
+        "approved_at": "+010000-03-12T21:00:00.000Z",
+        "idempotency_key": "hardening-invalid"
+      },
+      "status": 400,
+      "response": {
+        "error": "data de aprovação inválida"
+      }
+    },
+    {
+      "method": "POST",
+      "url": "http://127.0.0.1:3301/approvals",
+      "request": {
+        "mission_id": "msn_2044",
+        "approved_at": "9999-12-31T23:59:59.999-04:00",
+        "idempotency_key": "hardening-invalid"
+      },
+      "status": 400,
+      "response": {
+        "error": "data de aprovação inválida"
+      }
+    },
+    {
+      "method": "GET",
+      "url": "http://127.0.0.1:3301/missions/msn_2044",
+      "status": 200,
+      "response": {
+        "mission": {
+          "id": "msn_2044",
+          "creator_id": "crt_caio",
+          "amount_cents": 8000,
+          "deadline_date": "2026-04-02",
+          "status": "open"
+        },
+        "ledger": [],
+        "payout": null
+      }
+    }
+  ]
+}

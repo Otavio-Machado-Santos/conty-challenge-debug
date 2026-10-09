@@ -1,0 +1,93 @@
+{
+  "challenge": "debug-repasses",
+  "reviewer": "/root/implementar_roteiro",
+  "independence": "Este agente implementou apenas o desafio de revisão de roteiro; não implementou nem alterou a solução de repasses.",
+  "axis": "Requisitos e limites do domínio: incidente, Unicode, prazo civil, dinheiro, idempotência por missão e callbacks",
+  "base_sha": "643c24aeb3560325993a93c2cde2991404e786e5",
+  "reviewed_sha": "0f92982cab571f157709b1015b34773a1a718a98",
+  "runtime": "Node v22.23.3",
+  "read": [
+    "contratos/debug-repasses.txt",
+    "README.md",
+    "logs/incident.jsonl",
+    "src/app.ts",
+    "src/deadlines.ts",
+    "src/idempotency.ts",
+    "src/money.ts",
+    "src/provider-status.ts",
+    "src/db.ts",
+    "src/seed.ts",
+    "src/index.ts",
+    "test/payouts.test.ts",
+    "test/incident-regressions.test.ts",
+    "docs/solucao.md"
+  ],
+  "commands": [
+    {
+      "command": "npm test (Node 22 no PATH)",
+      "result": "pass",
+      "details": "30 testes em 2 arquivos: os 9 originais e 21 regressões; exit 0"
+    },
+    {
+      "command": "npm run typecheck (Node 22 no PATH)",
+      "result": "pass",
+      "details": "tsc --noEmit; exit 0"
+    },
+    {
+      "command": "TZ=Pacific/Apia npm test (Node 22 no PATH)",
+      "result": "pass",
+      "details": "30 testes verdes; a regra independe do fuso do processo"
+    },
+    {
+      "command": "git diff --name-only BASE CANDIDATE -- README.md logs/incident.jsonl test/payouts.test.ts src/db.ts src/seed.ts package.json package-lock.json",
+      "result": "pass",
+      "details": "Saída vazia: contrato, logs, 9 testes originais, esquema, seed e dependências preservados"
+    },
+    {
+      "command": "git status --porcelain; git rev-parse HEAD",
+      "result": "pass",
+      "details": "Checkout limpo no candidato 0f92982cab571f157709b1015b34773a1a718a98"
+    },
+    {
+      "command": "git diff --check BASE...CANDIDATE",
+      "result": "warning",
+      "details": "Somente logs de evidência: linhas em branco finais e espaços reproduzidos pelo reporter Vitest em before-test.txt; nenhuma ocorrência no código"
+    },
+    {
+      "command": "VITEST=1 node --import tsx --input-type=module; probes adicionais em SQLite descartável",
+      "result": "pass",
+      "details": [
+        "U+200B extraído do JSONL real, não reconstruído do texto: 100 retries com chave contaminada ou chave diferente deixam um lançamento de R$80",
+        "2026-03-12T23:59:59.999-03:00 aceita; 2026-03-13T00:00:00.000-03:00 recusa; um lançamento",
+        "100 chamadas em dois apps e duas conexões ao mesmo arquivo SQLite: um 201, 99 respostas 200, um ledger e um payout",
+        "Trigger de falha ao UPDATE da missão depois de inserir ledger/payout: 500 e rollback dos dois registros; missão permanece open",
+        "20 callbacks repetidos cobrindo RECEIVED, CONFIRMED, FAILED e PENDING, mais UNKNOWN: mapeamento contratado e apenas um crédito"
+      ]
+    }
+  ],
+  "findings": [
+    {
+      "priority": "P3",
+      "kind": "suggestion",
+      "requires_fix_for_challenge": false,
+      "file": "src/app.ts",
+      "line": 78,
+      "related_file": "src/deadlines.ts",
+      "related_line": 12,
+      "title": "Validação estrita de timestamp seria um endurecimento útil",
+      "details": "O uso pré-existente de new Date aceita a data de calendário impossível 2026-02-30T12:00:00.000Z por normalização. Também aceita ano expandido; approvedCivilDay não devolve um ano sempre com quatro dígitos, e a comparação lexicográfica pode aceitar o ano 10000 antes de um prazo de 2026. Esses formatos não aparecem nos logs nem no contrato exemplificado, e não prejudicam as correções de incidente ou os timestamps ISO de quatro dígitos exigidos nos casos do desafio; registrado como sugestão de validação de entrada, não requisito adicional inventado.",
+      "reproduction": [
+        "Banco novo com seed: POST /approvals {mission_id:'msn_2044',approved_at:'2026-02-30T12:00:00.000Z',idempotency_key:'invalid-calendar'} devolve 201 e R$80",
+        "Outro banco novo com seed: POST /approvals {mission_id:'msn_1842',approved_at:'+010000-03-12T21:00:00.000Z',idempotency_key:'expanded-year'} devolve 201, embora o prazo seja 2026-03-12"
+      ],
+      "suggestion": "Se ampliar a robustez além do incidente, valide timestamps ISO com ano de quatro dígitos, timezone explícito e calendário existente, ou compare ordinais numéricos; preserve os offsets explícitos já testados."
+    }
+  ],
+  "verdict": "pass",
+  "conclusion": "Todos os requisitos obrigatórios examinados passam por execução independente. A correção está localizada nas regras responsáveis e na transação de aprovação; originais intactos. Sugestão de endurecimento de entradas e whitespace nos logs não bloqueiam a entrega do contrato observado.",
+  "limitations": [
+    "Revisão em ambiente local com dados sintéticos; não comprova conciliação de produção.",
+    "Uma falha de energia e callbacks históricos fora de ordem não foram tratados como novos requisitos, pois o contrato não define timestamp ou ID de evento para isso.",
+    "Relatório não modifica código, não publica PR nem envia a entrega."
+  ]
+}

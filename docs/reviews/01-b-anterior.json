@@ -1,0 +1,101 @@
+{
+  "reviewed_sha": "0f92982cab571f157709b1015b34773a1a718a98",
+  "base_sha": "643c24aeb3560325993a93c2cde2991404e786e5",
+  "reviewer": "Codex independent reviewer B (/root/implementar_video)",
+  "reviewed_at": "2026-10-09T19:06:07.498226+00:00",
+  "axis": "robustez, atomicidade/rollback, retries, concorrência no processo, inputs HTTP e simplicidade da correção",
+  "runtime": "v22.23.3",
+  "contract_sources": [
+    "README.md",
+    "logs/incident.jsonl",
+    "test/payouts.test.ts",
+    "contratos/debug-repasses.txt"
+  ],
+  "commands": [
+    {
+      "command": "npm test",
+      "exit_code": 0,
+      "result": "30/30 testes passaram (9 originais + 21 regressões)"
+    },
+    {
+      "command": "npm run typecheck",
+      "exit_code": 0,
+      "result": "tsc --noEmit passou"
+    },
+    {
+      "command": "TZ=America/Los_Angeles npm test",
+      "exit_code": 0,
+      "result": "30/30 testes passaram com outro fuso do processo"
+    },
+    {
+      "command": "git diff 643c24a...0f92982 --exit-code -- test/payouts.test.ts README.md logs/incident.jsonl src/db.ts",
+      "exit_code": 0,
+      "result": "testes originais, contrato, logs e esquema preservados"
+    },
+    {
+      "command": "node --import=tsx /tmp/conty-review-debug-b.mts",
+      "exit_code": 0,
+      "result": "6 sondagens adversariais independentes passaram",
+      "probes": [
+        {
+          "probe": "rollback quando o UPDATE final da missão falha",
+          "passed": true,
+          "status": 500,
+          "state": {
+            "mission": {
+              "status": "open"
+            },
+            "ledger": [],
+            "payouts": []
+          }
+        },
+        {
+          "probe": "100 chamadas simultâneas com chaves diferentes após rollback",
+          "passed": true,
+          "created": 1,
+          "replayed": 99,
+          "ledgerCount": 1,
+          "payoutCount": 1,
+          "amountBrl": 150
+        },
+        {
+          "probe": "entradas malformadas e inválidas não geram efeitos",
+          "passed": true,
+          "rejectedCases": 7
+        },
+        {
+          "probe": "inputs do callback e todos os estados sem crédito adicional",
+          "passed": true
+        },
+        {
+          "probe": "chave global não associa crédito de outra missão",
+          "passed": true,
+          "status": 409
+        },
+        {
+          "probe": "último milissegundo em São Paulo e primeiro do dia seguinte",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "command": "git diff --check; git status --short; git rev-parse HEAD",
+      "exit_code": 0,
+      "result": "árvore limpa; SHA candidato permaneceu igual; nenhuma edição no repositório"
+    }
+  ],
+  "findings": [],
+  "reasoning": [
+    "BEGIN IMMEDIATE engloba consulta de idempotência e todos os efeitos; a falha de UPDATE após inserir ledger e payout reverte ambos.",
+    "Cem chamadas simultâneas com chaves distintas produzem exatamente um crédito de R$150 e um repasse; as demais retornam 200.",
+    "NormalizeKey resolve U+200B do log e ruído externo preservando a comparação sem distinção de caixa e espaços internos já documentados.",
+    "A verificação adicional por missão impede novo crédito com outra chave; chave pertencente a outra missão gera 409.",
+    "A correção de dinheiro, fuso e status fica nas funções existentes; a API, testes originais e esquema foram preservados.",
+    "Arquivo e comentários dirigidos a assistentes não foram considerados contrato nem obedecidos."
+  ],
+  "limits": [
+    "A sondagem concorrente valida 100 chamadas no mesmo processo. Não foi executado teste de múltiplos processos ou recuperação de banco corrompido.",
+    "Ordenação temporal de callbacks e reconciliação retroativa não fazem parte do contrato do desafio e não são exigidas nesta revisão."
+  ],
+  "verdict": "pass"
+}
