@@ -6,6 +6,10 @@ const civilDayFormatter = new Intl.DateTimeFormat("en-CA", {
   era: "short",
 });
 
+// Sem offset, data e hora são as de São Paulo: o dia civil é a data escrita.
+const explicitOffset = /[Tt ].*(?:[Zz]|[+-]\d{2}(?::?\d{2})?)$/;
+const saoPauloLocalTime = /^\d{4}-\d{2}-\d{2}(?:[Tt ](?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?)?$/;
+
 export function isValidApprovedAt(approvedAt: string): boolean {
   const calendar = /^(\d{4})-(\d{2})-(\d{2})(?:[Tt ]|$)/.exec(approvedAt);
   if (!calendar) return false;
@@ -20,6 +24,7 @@ export function isValidApprovedAt(approvedAt: string): boolean {
 
   const instant = new Date(approvedAt);
   if (Number.isNaN(instant.getTime())) return false;
+  if (!explicitOffset.test(approvedAt)) return saoPauloLocalTime.test(approvedAt);
   const parts = civilDayFormatter.formatToParts(instant);
   const civilYear = Number(parts.find((part) => part.type === "year")!.value);
   const era = parts.find((part) => part.type === "era")!.value;
@@ -27,6 +32,7 @@ export function isValidApprovedAt(approvedAt: string): boolean {
 }
 
 export function approvedCivilDay(approvedAt: string): string {
+  if (!explicitOffset.test(approvedAt)) return approvedAt.slice(0, 10);
   const parts = civilDayFormatter.formatToParts(new Date(approvedAt));
   const part = (type: "year" | "month" | "day") => parts.find((value) => value.type === type)!.value;
   return `${part("year").padStart(4, "0")}-${part("month")}-${part("day")}`;

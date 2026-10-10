@@ -65,6 +65,24 @@ describe("regressões do incidente e invariantes do repasse", () => {
     expect((await approve("dst-tarde", "msn_1842", "2018-11-05T02:00:00.000Z")).status).toBe(409);
   });
 
+  it("data sem hora é o dia civil escrito, qualquer que seja o fuso do servidor", async () => {
+    expect((await approve("data-seguinte", "msn_1842", "2026-03-13")).status).toBe(409);
+    expect((await mission("msn_1842")).ledger).toEqual([]);
+    expect((await approve("data-prazo", "msn_1842", "2026-03-12")).status).toBe(201);
+  });
+
+  it("horário sem offset é lido em São Paulo, qualquer que seja o fuso do servidor", async () => {
+    expect((await approve("local-seguinte", "msn_1842", "2026-03-13T00:30:00")).status).toBe(409);
+    expect((await approve("local-espaco", "msn_1842", "2026-03-13 00:00:00")).status).toBe(409);
+    expect((await mission("msn_1842")).ledger).toEqual([]);
+    expect((await approve("local-ultimo", "msn_1842", "2026-03-12T23:59:59.999")).status).toBe(201);
+  });
+
+  it("recusa hora 24 sem offset, que cairia no dia seguinte, sem gravar efeitos", async () => {
+    expect((await approve("hora-24", "msn_1842", "2026-03-12T24:00:00")).status).toBe(400);
+    expect((await mission("msn_1842")).ledger).toEqual([]);
+  });
+
   it("reproduz a chave com U+200B registrada no log sem novo crédito", async () => {
     const first = await approve("pay_7c1");
     const retry = await approve("pay_7c1\u200b");
