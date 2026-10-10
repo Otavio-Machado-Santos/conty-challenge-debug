@@ -1,0 +1,37 @@
+# Verificação final da entrega 1
+
+Código revisado: `b0b8034bb393ac05dde45ad8d11f618da31ac725`. Runtime: Node.js 22.23.3 em macOS.
+
+Implementação e documentação: Codex. Revisão: dois agentes Codex independentes do implementador. Não houve revisão humana do código.
+
+- 46 testes passaram no código final; [checkout isolado](evidence/coordenador-clone-limpo.txt).
+- [Parecer A](reviews/01-a.json) e [parecer B](reviews/01-b.json), com sondagens independentes, limites e sugestões.
+- [Transcrição HTTP real](evidence/coordenador-http.json): 6 etapas verificadas, com requests, respostas e invariantes.
+- [Screenshot](evidence/screen.jpg), [resposta expandida](evidence/response.jpg) e [GIF da execução real](evidence/flow.gif).
+
+O GIF foi codificado dos frames de screencast do navegador durante a execução das chamadas locais; não é uma montagem ou simulação. Os dados são fictícios. O portal apenas apresenta respostas da API e compara invariantes. As integrações externas são mockadas quando previsto no enunciado. Os limites de persistência, autenticação e operação estão no README. Os testes e capturas não representam deploy ou funcionamento em produção.
+
+![Respostas reais da API](evidence/screen.jpg)
+
+![Gravação do fluxo HTTP](evidence/flow.gif)
+
+## Registro na Conty
+
+Status observado: **Entrega registrada**, em 2026-10-09T19:41:34.578Z.
+
+- [Link enviado](https://github.com/Otavio-Machado-Santos/conty-challenge-debug/pull/1).
+- [Página do desafio](https://challenge.appconty.com/desafios/debug-repasses).
+- [Recibo e texto persistidos](evidence/conty-recibo.json).
+- [Screenshot real do registro](evidence/conty-recibo.jpg).
+
+O registro confirma o envio do link; a avaliação da Conty e o ranking dependem da auditoria da organização. Não é uma aprovação técnica pelo avaliador.
+
+## Revisão adicional por Claude Opus 5.5
+
+Após as nove entregas terem sido publicadas e registradas, Claude Code executou a validação solicitada com um subagente independente por desafio, usando `claude-opus-5-5`. Esta entrega recebeu **approved** sobre o código `b0b8034bb393ac05dde45ad8d11f618da31ac725`.
+
+- [Parecer, comandos, resultados, sugestões e limites](reviews/claude-opus55.json).
+- [Prova do modelo e dos subagentes](reviews/claude-modelo.json).
+
+
+O modelo foi conferido nos eventos reais da CLI. O coordenador conferiu os hashes e consolidou o parecer final efetivamente emitido para cada commit; os arquivos de prova distinguem a rodada dos nove e as reavaliações. A revisão é assistida por IA, sem revisão humana; a avaliação oficial da Conty continua pendente.

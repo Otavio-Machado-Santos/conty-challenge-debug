@@ -1,0 +1,54 @@
+Checkout isolado de b0b8034bb393ac05dde45ad8d11f618da31ac725; sem arquivos não versionados, node_modules ou dados locais.
+$ node --version
+v22.23.3
+
+exit_code: 0
+
+$ npm ci
+
+added 57 packages, and audited 58 packages in 2s
+
+15 packages are looking for funding
+  run `npm fund` for details
+
+3 vulnerabilities (1 moderate, 2 critical)
+
+To address all issues (including breaking changes), run:
+  npm audit fix --force
+
+Run `npm audit` for details.
+npm warn install-scripts 2 packages have install scripts not yet covered by allowScripts:
+npm warn install-scripts   esbuild@0.28.2 (postinstall: node install.js)
+npm warn install-scripts   fsevents@2.3.3 (install: (install scripts present))
+npm warn install-scripts
+npm warn install-scripts Run `npm install-scripts ls` to review, or `npm install-scripts approve <pkg>` to allow.
+
+exit_code: 0
+
+$ npm test
+
+> test
+> NODE_OPTIONS='--disable-warning=ExperimentalWarning' vitest run
+
+
+ RUN  v3.2.7 /private/var/folders/1h/dnd2dd992cq41yhypgy46_bc0000gn/T/conty-clean-01-pbqr1lgy
+
+ ✓ test/payouts.test.ts (9 tests) 26ms
+ ✓ test/incident-regressions.test.ts (37 tests) 47ms
+
+ Test Files  2 passed (2)
+      Tests  46 passed (46)
+   Start at  16:26:17
+   Duration  481ms (transform 81ms, setup 0ms, collect 167ms, tests 73ms, environment 1ms, prepare 133ms)
+
+
+exit_code: 0
+
+$ npm run typecheck
+
+> typecheck
+> tsc --noEmit
+
+
+exit_code: 0
+

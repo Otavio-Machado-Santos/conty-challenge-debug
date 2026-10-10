@@ -1,0 +1,93 @@
+{
+  "challenge": "debug-repasses",
+  "reviewer": "/root/implementar_roteiro",
+  "independence": "Este agente implementou apenas o desafio de revisão de roteiro; não implementou nem alterou a solução de repasses.",
+  "axis": "Requisitos e limites do domínio: incidente, Unicode, prazo civil, dinheiro, idempotência por missão e callbacks",
+  "base_sha": "643c24aeb3560325993a93c2cde2991404e786e5",
+  "reviewed_sha": "b0b8034bb393ac05dde45ad8d11f618da31ac725",
+  "runtime": "Node v22.23.3",
+  "read": [
+    "contratos/debug-repasses.txt",
+    "README.md",
+    "logs/incident.jsonl",
+    "src/app.ts",
+    "src/deadlines.ts",
+    "src/idempotency.ts",
+    "src/money.ts",
+    "src/provider-status.ts",
+    "src/db.ts",
+    "src/seed.ts",
+    "src/index.ts",
+    "test/payouts.test.ts",
+    "test/incident-regressions.test.ts",
+    "docs/solucao.md"
+  ],
+  "commands": [
+    {
+      "command": "npm test (Node22)",
+      "result": "pass",
+      "details": "46 testes verdes: 9 originais e37 regressões; exit0"
+    },
+    {
+      "command": "npm run typecheck (Node22)",
+      "result": "pass",
+      "details": "tsc --noEmit; exit0"
+    },
+    {
+      "command": "TZ=Pacific/Apia npm test (Node22)",
+      "result": "pass",
+      "details": "46 testes verdes com fuso distinto"
+    },
+    {
+      "command": "git diff --name-only BASE NOVO_CANDIDATO -- README.md logs/incident.jsonl test/payouts.test.ts src/db.ts src/seed.ts package.json package-lock.json",
+      "result": "pass",
+      "details": "Saída vazia: contratos, logs, testes originais, esquema, seed e deps preservados"
+    },
+    {
+      "command": "git diff --check ANTIGO_CANDIDATO...NOVO_CANDIDATO; git status --porcelain; git rev-parse HEAD",
+      "result": "pass",
+      "details": "Delta sem whitespace problemático, checkout limpo no SHA b0b8034bb393ac05dde45ad8d11f618da31ac725"
+    },
+    {
+      "command": "VITEST=1 node --import tsx --input-type=module; dez sondagens independentes do delta",
+      "result": "pass",
+      "details": [
+        "2026-02-30T12:00:00.000Z ->400 sem ledger/payout",
+        "+010000-03-12T21:00:00.000Z ->400 sem ledger/payout",
+        "1900-02-29 ->400; 2000-02-29 ->201: exceção secular gregoriana preservada",
+        "último instante com fração longa .999999999Z ->201; primeiro instante seguinte03:00:00Z ->409",
+        "23:59:59.999-03:00 ->201; 00:00:00-03:00 no próximo dia ->409",
+        "data ISO sem hora2026-03-12 e ano menor0900 ->201, preservando formatos pré-existentes e paddingYYYY"
+      ]
+    }
+  ],
+  "findings": [],
+  "verdict": "pass",
+  "conclusion": "Delta de validação fecha as duas sugestões da revisão anterior sem regredir contrato observado. 46 testes/typecheck/probes independentes passam, originais intactos e casos ISO Z/offset/fração/data sem hora preservados. Revisão anterior arquivada para rastreabilidade.",
+  "limitations": [
+    "Revisão em ambiente local com dados sintéticos; não comprova conciliação de produção.",
+    "Uma falha de energia e callbacks históricos fora de ordem não foram tratados como novos requisitos, pois o contrato não define timestamp ou ID de evento para isso.",
+    "Relatório não modifica código, não publica PR nem envia a entrega."
+  ],
+  "delta_from_sha": "0f92982cab571f157709b1015b34773a1a718a98",
+  "previous_report": "01-a-anterior.json",
+  "resolved_findings": [
+    {
+      "priority": "P3",
+      "kind": "suggestion",
+      "requires_fix_for_challenge": false,
+      "file": "src/app.ts",
+      "line": 78,
+      "related_file": "src/deadlines.ts",
+      "related_line": 12,
+      "title": "Validação estrita de timestamp seria um endurecimento útil",
+      "details": "O uso pré-existente de new Date aceita a data de calendário impossível 2026-02-30T12:00:00.000Z por normalização. Também aceita ano expandido; approvedCivilDay não devolve um ano sempre com quatro dígitos, e a comparação lexicográfica pode aceitar o ano 10000 antes de um prazo de 2026. Esses formatos não aparecem nos logs nem no contrato exemplificado, e não prejudicam as correções de incidente ou os timestamps ISO de quatro dígitos exigidos nos casos do desafio; registrado como sugestão de validação de entrada, não requisito adicional inventado.",
+      "reproduction": [
+        "Banco novo com seed: POST /approvals {mission_id:'msn_2044',approved_at:'2026-02-30T12:00:00.000Z',idempotency_key:'invalid-calendar'} devolve 201 e R$80",
+        "Outro banco novo com seed: POST /approvals {mission_id:'msn_1842',approved_at:'+010000-03-12T21:00:00.000Z',idempotency_key:'expanded-year'} devolve 201, embora o prazo seja 2026-03-12"
+      ],
+      "suggestion": "Se ampliar a robustez além do incidente, valide timestamps ISO com ano de quatro dígitos, timezone explícito e calendário existente, ou compare ordinais numéricos; preserve os offsets explícitos já testados.",
+      "resolution": "Correção validada neste delta: dia existente e faixa de ano civil0001..9999 com eraAD; formatter padStart(4); ambas as sondagens agora400 sem efeitos."
+    }
+  ]
+}

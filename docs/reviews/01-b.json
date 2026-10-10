@@ -1,0 +1,125 @@
+{
+  "reviewed_sha": "b0b8034bb393ac05dde45ad8d11f618da31ac725",
+  "base_sha": "643c24aeb3560325993a93c2cde2991404e786e5",
+  "delta_from_sha": "0f92982cab571f157709b1015b34773a1a718a98",
+  "previous_review": "01-b-anterior.json",
+  "reviewer": "Codex independent reviewer B (/root/implementar_video)",
+  "reviewed_at": "2026-10-09T19:17:27.091409+00:00",
+  "runtime": "v22.23.3",
+  "axis": "revisão delta de calendário/ano civil e representações ISO, com regressões de robustez reexecutadas",
+  "contract_sources": [
+    "README.md",
+    "logs/incident.jsonl",
+    "test/payouts.test.ts",
+    "contratos/debug-repasses.txt"
+  ],
+  "commands": [
+    {
+      "command": "git diff 0f92982...b0b8034 -- src test/incident-regressions.test.ts",
+      "exit_code": 0,
+      "result": "Delta inspecionado: validação de calendário, faixa de ano civil e padding na comparação"
+    },
+    {
+      "command": "npm test",
+      "exit_code": 0,
+      "result": "46/46 testes passaram: 9 originais + 37 regressões"
+    },
+    {
+      "command": "npm run typecheck",
+      "exit_code": 0,
+      "result": "tsc --noEmit passou"
+    },
+    {
+      "command": "TZ=Asia/Tokyo npm test",
+      "exit_code": 0,
+      "result": "46/46 testes passaram em outro fuso de processo"
+    },
+    {
+      "command": "node --import=tsx /tmp/conty-review-debug-b.mts",
+      "exit_code": 0,
+      "result": "6 probes da revisão anterior continuam passando",
+      "probes": [
+        {
+          "probe": "rollback quando o UPDATE final da missão falha",
+          "passed": true,
+          "status": 500,
+          "state": {
+            "mission": {
+              "status": "open"
+            },
+            "ledger": [],
+            "payouts": []
+          }
+        },
+        {
+          "probe": "100 chamadas simultâneas com chaves diferentes após rollback",
+          "passed": true,
+          "created": 1,
+          "replayed": 99,
+          "ledgerCount": 1,
+          "payoutCount": 1,
+          "amountBrl": 150
+        },
+        {
+          "probe": "entradas malformadas e inválidas não geram efeitos",
+          "passed": true,
+          "rejectedCases": 7
+        },
+        {
+          "probe": "inputs do callback e todos os estados sem crédito adicional",
+          "passed": true
+        },
+        {
+          "probe": "chave global não associa crédito de outra missão",
+          "passed": true,
+          "status": 409
+        },
+        {
+          "probe": "último milissegundo em São Paulo e primeiro do dia seguinte",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "command": "node --import=tsx /tmp/conty-review-debug-b-delta.mts",
+      "exit_code": 0,
+      "result": "Sondagens independentes de calendário/ano/offset/frações e HTTP passaram",
+      "evidence": {
+        "runtime": "v22.23.3",
+        "passed": true,
+        "invalidCalendarCasesRejected": 18,
+        "validRepresentationCasesPreserved": 12,
+        "smallCivilYearsPadded": true,
+        "equivalentOffsetLastDayAccepted": true,
+        "invalidHTTPRequestsWithoutSideEffects": 18
+      }
+    },
+    {
+      "command": "git diff 643c24a...b0b8034 --exit-code -- test/payouts.test.ts README.md logs/incident.jsonl src/db.ts",
+      "exit_code": 0,
+      "result": "Contrato, logs, esquema e testes originais preservados"
+    },
+    {
+      "command": "git rev-parse HEAD; git status --short; git diff --check",
+      "exit_code": 0,
+      "result": "SHA fixo preservado, árvore limpa e nenhum código editado"
+    }
+  ],
+  "findings": [],
+  "reasoning": [
+    "BEGIN IMMEDIATE engloba consulta de idempotência e todos os efeitos; a falha de UPDATE após inserir ledger e payout reverte ambos.",
+    "Cem chamadas simultâneas com chaves distintas produzem exatamente um crédito de R$150 e um repasse; as demais retornam 200.",
+    "NormalizeKey resolve U+200B do log e ruído externo preservando a comparação sem distinção de caixa e espaços internos já documentados.",
+    "A verificação adicional por missão impede novo crédito com outra chave; chave pertencente a outra missão gera 409.",
+    "A correção de dinheiro, fuso e status fica nas funções existentes; a API, testes originais e esquema foram preservados.",
+    "Arquivo e comentários dirigidos a assistentes não foram considerados contrato nem obedecidos.",
+    "A validação rejeitou independentemente 18 datas inexistentes/fora da faixa, inclusive séculos não bissextos, overflow do ano por offset e horas inválidas; as respostas HTTP foram 400 sem ledger/payout nem mudança da missão.",
+    "Doze representações válidas mantiveram compatibilidade: bissextos de 1600/2000/2024, anos pequenos, Z, offsets, frações longas, ISO com offset sem dois-pontos e data simples.",
+    "Padding do ano civil evita ordenação lexical errada em 0001, 0012 e 0999. Instantes equivalentes com offsets distintos continuam aceitando o último milissegundo do prazo."
+  ],
+  "limits": [
+    "A sondagem concorrente valida 100 chamadas no mesmo processo. Não foi executado teste de múltiplos processos ou recuperação de banco corrompido.",
+    "Ordenação temporal de callbacks e reconciliação retroativa não fazem parte do contrato do desafio e não são exigidas nesta revisão."
+  ],
+  "verdict": "pass"
+}

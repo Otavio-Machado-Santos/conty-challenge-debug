@@ -1,0 +1,205 @@
+{
+  "challenge": 1,
+  "started_at": "2026-10-09T19:37:30.058Z",
+  "finished_at": "2026-10-09T19:37:30.153Z",
+  "environment": "macOS, Node22, HTTP loopback, dados sintéticos",
+  "passed": true,
+  "steps": [
+    {
+      "label": "Último instante em São Paulo: crédito de R$150",
+      "method": "POST",
+      "path": "/approvals",
+      "request": {
+        "mission_id": "msn_1900",
+        "approved_at": "2026-03-21T02:59:59.999Z",
+        "idempotency_key": "evidence_1900"
+      },
+      "http_status": 201,
+      "response": {
+        "mission_id": "msn_1900",
+        "status": "approved",
+        "ledger": {
+          "id": "92a9dbd6-8b93-4718-b492-ad429e3ab166",
+          "mission_id": "msn_1900",
+          "idempotency_key": "evidence_1900",
+          "amount_brl": 150,
+          "created_at": "2026-10-09T19:37:30.082Z"
+        },
+        "payout": {
+          "id": "048f090f-adc9-46c7-933e-6605368b3bc4",
+          "mission_id": "msn_1900",
+          "provider_status": null,
+          "status": "pending"
+        }
+      },
+      "checks": [
+        {
+          "field": "ledger.amount_brl",
+          "expected": 150,
+          "actual": 150,
+          "passed": true
+        }
+      ],
+      "passed": true,
+      "duration_ms": 31
+    },
+    {
+      "label": "Retry com U+200B: mesmo lançamento, sem novo crédito",
+      "method": "POST",
+      "path": "/approvals",
+      "request": {
+        "mission_id": "msn_1900",
+        "approved_at": "2026-03-21T02:59:59.999Z",
+        "idempotency_key": "evidence_1900​"
+      },
+      "http_status": 200,
+      "response": {
+        "mission_id": "msn_1900",
+        "status": "approved",
+        "ledger": {
+          "id": "92a9dbd6-8b93-4718-b492-ad429e3ab166",
+          "mission_id": "msn_1900",
+          "idempotency_key": "evidence_1900",
+          "amount_brl": 150,
+          "created_at": "2026-10-09T19:37:30.082Z"
+        },
+        "payout": {
+          "id": "048f090f-adc9-46c7-933e-6605368b3bc4",
+          "mission_id": "msn_1900",
+          "provider_status": null,
+          "status": "pending"
+        }
+      },
+      "checks": [
+        {
+          "field": "ledger.id",
+          "expected": "92a9dbd6-8b93-4718-b492-ad429e3ab166",
+          "actual": "92a9dbd6-8b93-4718-b492-ad429e3ab166",
+          "passed": true
+        }
+      ],
+      "passed": true,
+      "duration_ms": 19
+    },
+    {
+      "label": "Provedor PENDING mantém pendente",
+      "method": "POST",
+      "path": "/payouts/048f090f-adc9-46c7-933e-6605368b3bc4/provider",
+      "request": {
+        "provider_status": "PENDING"
+      },
+      "http_status": 200,
+      "response": {
+        "id": "048f090f-adc9-46c7-933e-6605368b3bc4",
+        "mission_id": "msn_1900",
+        "provider_status": "PENDING",
+        "status": "pending"
+      },
+      "checks": [
+        {
+          "field": "status",
+          "expected": "pending",
+          "actual": "pending",
+          "passed": true
+        }
+      ],
+      "passed": true,
+      "duration_ms": 10
+    },
+    {
+      "label": "Provedor CONFIRMED quita o repasse",
+      "method": "POST",
+      "path": "/payouts/048f090f-adc9-46c7-933e-6605368b3bc4/provider",
+      "request": {
+        "provider_status": "CONFIRMED"
+      },
+      "http_status": 200,
+      "response": {
+        "id": "048f090f-adc9-46c7-933e-6605368b3bc4",
+        "mission_id": "msn_1900",
+        "provider_status": "CONFIRMED",
+        "status": "paid"
+      },
+      "checks": [
+        {
+          "field": "status",
+          "expected": "paid",
+          "actual": "paid",
+          "passed": true
+        }
+      ],
+      "passed": true,
+      "duration_ms": 10
+    },
+    {
+      "label": "Histórico: apenas um crédito para a missão",
+      "method": "GET",
+      "path": "/missions/msn_1900",
+      "http_status": 200,
+      "response": {
+        "mission": {
+          "id": "msn_1900",
+          "creator_id": "crt_bruno",
+          "amount_cents": 15000,
+          "deadline_date": "2026-03-20",
+          "status": "approved"
+        },
+        "ledger": [
+          {
+            "id": "92a9dbd6-8b93-4718-b492-ad429e3ab166",
+            "mission_id": "msn_1900",
+            "idempotency_key": "evidence_1900",
+            "amount_brl": 150,
+            "created_at": "2026-10-09T19:37:30.082Z"
+          }
+        ],
+        "payout": {
+          "id": "048f090f-adc9-46c7-933e-6605368b3bc4",
+          "mission_id": "msn_1900",
+          "provider_status": "CONFIRMED",
+          "status": "paid"
+        }
+      },
+      "checks": [
+        {
+          "field": "ledger.length",
+          "expected": 1,
+          "actual": 1,
+          "passed": true
+        },
+        {
+          "field": "payout.status",
+          "expected": "paid",
+          "actual": "paid",
+          "passed": true
+        }
+      ],
+      "passed": true,
+      "duration_ms": 10
+    },
+    {
+      "label": "Primeiro instante do dia seguinte: aprovação recusada",
+      "method": "POST",
+      "path": "/approvals",
+      "request": {
+        "mission_id": "msn_2044",
+        "approved_at": "2026-04-03T03:00:00.000Z",
+        "idempotency_key": "evidence_expired"
+      },
+      "http_status": 409,
+      "response": {
+        "error": "prazo encerrado"
+      },
+      "checks": [
+        {
+          "field": "error",
+          "expected": "prazo encerrado",
+          "actual": "prazo encerrado",
+          "passed": true
+        }
+      ],
+      "passed": true,
+      "duration_ms": 11
+    }
+  ]
+}
